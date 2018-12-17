@@ -23,6 +23,7 @@
 			height: 150px;
 			margin: 10px auto;
 			display: block;
+			border: 2px solid rgb(0, 160, 255);
 		}
 
 		#buttony{
@@ -51,11 +52,21 @@
 			height: 600px;
 			margin: 20px auto;
 			display: block;
-			border: 2px ;
+			border: 2px solid aqua;
 		}
 
 	</style>
     <script>
+		/*	
+		Zrobione
+			- działa zmiana obrazu po kliku u góry
+			- dziala zmiana poziomu trudności
+		Do zrobienia
+			+ algorytm tnący zdjęcie
+			+ algorytm mieszający
+			+ stoper
+			+ cookies z wynikami
+		*/
       function ready() {
         slide = {
 			run: function (){
@@ -63,12 +74,24 @@
 				this.loadphoto()
 				this.timer()
 				this.losowanyObraz()
+				this.changePhoto()
 			},
 
 
+			nrZdj: 4,
+			poziomTrudnosci: 3,
+
+
 			changePhoto: function(){
-				tablicaObrazow = ['p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg']
-				
+				var ilObrazkow = 4
+				var obrazek = document.getElementsByTagName('header')[0].firstChild
+				obrazek.addEventListener('click', () =>{
+					this.nrZdj ++
+					if (this.nrZdj > ilObrazkow) this.nrZdj = 1 
+					document.getElementsByTagName('header')[0].firstChild.src = `p${this.nrZdj}.jpg`
+					document.getElementById('game').removeChild(document.getElementById('game').firstChild)
+					this.losowanyObraz()
+				})
 			},
 
 
@@ -76,21 +99,12 @@
 				el = document.createElement('header')
 				document.body.appendChild(el)
 
-				
 				tablicaElementow = ['buttony', 'timer', 'game']
 				for(var i = 0; i<tablicaElementow.length; i++){
 					el = document.createElement('div')
 					el.id = tablicaElementow[i]
 					document.body.appendChild(el)
-					
 				}
-			},
-
-
-            loadphoto: function(){
-                obraz = document.createElement("img")
-                obraz.src = "p4.jpg"
-                document.getElementsByTagName('header')[0].appendChild(obraz)
 
 				var tabInner = ['3 x 3', '4 x 4', '5 x 5', '6 x 6']
 				var tabId = [3, 4, 5, 6]
@@ -102,11 +116,16 @@
 					document.getElementById('buttony').appendChild(btn)
 					
 					btn.onclick = () => {
-						var wybranyUklad = tabId[i]
-						return wybranyUklad
+						this.poziomTrudnosci= tabId[i]
 					}
 				}
-				// return wybranyUklad  - dlaczego nie?
+			},
+
+
+            loadphoto: function(){
+                obraz = document.createElement("img")
+                obraz.src = `p${this.nrZdj}.jpg`
+				document.getElementsByTagName('header')[0].appendChild(obraz)
 			},
 
 
@@ -119,7 +138,7 @@
 
 			losowanyObraz: function () {
 				obraz = document.createElement("img")
-				obraz.src = "p4.jpg"
+				obraz.src = `p${this.nrZdj}.jpg`
 				document.getElementById("game").appendChild(obraz)
 			}
 			
