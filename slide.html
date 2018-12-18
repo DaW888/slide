@@ -47,13 +47,28 @@
 			text-align: center;
 
 		}
-		#game > img{
+		#game{
 			width: 600px;
 			height: 600px;
 			margin: 20px auto;
 			display: block;
 			border: 2px solid aqua;
+			/* background-position: 20px 30px; */
+			background-size: 100px 100px;
 		}
+
+		#game > div{
+			margin: 0;
+			float: left;
+		}
+
+
+		/* #game > img{ */
+			/* width: 100px; */
+			/* height: 100px; */
+			/* background-position: 20px; */
+			/* background-repeat: repeat; */
+		/* } */
 
 	</style>
     <script>
@@ -66,6 +81,10 @@
 			+ algorytm mieszający
 			+ stoper
 			+ cookies z wynikami
+
+			wrzucimy pocięte elementy (id) do tablicy większej o 1 z każdej strony
+			będziemy losowali liczbę 1-4 lgpd i jeśli ta liczba będzie inna od tych dodatkowych oraz pusych
+			to będzie można wykonać ruch właśnie tym elementem
 		*/
       function ready() {
         slide = {
@@ -79,7 +98,9 @@
 
 
 			nrZdj: 4,
-			poziomTrudnosci: 3,
+			poziomTrudnosci: 4,
+			tabPoz: [],
+			slownik:{},
 
 
 			changePhoto: function(){
@@ -89,7 +110,7 @@
 					this.nrZdj ++
 					if (this.nrZdj > ilObrazkow) this.nrZdj = 1 
 					document.getElementsByTagName('header')[0].firstChild.src = `p${this.nrZdj}.jpg`
-					document.getElementById('game').removeChild(document.getElementById('game').firstChild)
+					document.getElementById('game').innerHTML = ''
 					this.losowanyObraz()
 				})
 			},
@@ -117,6 +138,8 @@
 					
 					btn.onclick = () => {
 						this.poziomTrudnosci= tabId[i]
+						document.getElementById('game').innerHTML = ''
+						this.losowanyObraz()
 					}
 				}
 			},
@@ -137,9 +160,55 @@
 
 
 			losowanyObraz: function () {
-				obraz = document.createElement("img")
-				obraz.src = `p${this.nrZdj}.jpg`
-				document.getElementById("game").appendChild(obraz)
+				this.slownik = {}
+				this.tabPoz = []
+				for(var i=0; i<this.poziomTrudnosci+2; i++){
+					this.tabPoz[i] = []
+					for(var j=0; j<this.poziomTrudnosci+2; j++)
+						this.tabPoz[i][j]= -1
+				}
+				var l = 1
+				for(var i=1; i<this.poziomTrudnosci+1; i++){
+					for(var j=1; j<this.poziomTrudnosci+1; j++){
+						if(i==this.poziomTrudnosci && j==this.poziomTrudnosci)
+							this.tabPoz[i][j] = 0
+						else
+							this.tabPoz[i][j] = l
+						l++
+					}
+				}
+				l = 1
+				for (var i = 0; i < this.poziomTrudnosci; i++) {
+					for (var j = 0; j < this.poziomTrudnosci; j++) {
+						var el = document.createElement('div')
+						el.style.width = String(600 / this.poziomTrudnosci) + 'px'
+						el.style.height = String(600 / this.poziomTrudnosci) + 'px'
+
+						if (i * j != (this.poziomTrudnosci - 1) * (this.poziomTrudnosci - 1)) {
+							el.id = l
+							this.slownik[l] = el
+							el.style.backgroundImage = `url(p${this.nrZdj}.jpg)`;
+							el.style.backgroundSize = '600px 600px'
+							el.style.backgroundPosition = `-${600 / this.poziomTrudnosci * j}px -${600 / this.poziomTrudnosci * i}px`
+						} else {
+							el.id = 0;
+							this.slownik[0] = el;
+							el.style.backgroundColor = 'transparent'
+						}
+						l++
+					}
+				}
+
+				//console.log(this.slownik)
+				this.wyswietlUkladanke()
+			},
+			wyswietlUkladanke: function (){
+				for(var i = 1; i < this.tabPoz.length - 1; i++){
+					for(var j = 1; j < this.tabPoz[i].length - 1; j++){
+						document.getElementById('game').appendChild(this.slownik[this.tabPoz[i][j]])
+						//console.log(this.tabPoz[i][j])
+					}
+				}
 			}
 			
         }
