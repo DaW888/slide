@@ -33,6 +33,7 @@
 		}
 		#buttony > button{
 			margin: 0 5px;
+			padding: 1px 2px;
 			background-color: transparent;
 			color: aqua;
 			font-size: 14px;
@@ -58,6 +59,13 @@
 		#game > div{
 			margin: 0;
 			float: left;
+			color: whitesmoke;
+			text-align: center;
+			vertical-align: middle;
+			font-family: 'Courier New', Courier, monospace;
+			font-weight: 600;
+			text-shadow: 1px 1px 3px black;
+			
 		}
 
 	</style>
@@ -66,15 +74,12 @@
 		Zrobione
 			- działa zmiana obrazu po kliku u góry
 			- dziala zmiana poziomu trudności
+			- algorytm tnący zdjęcie
 		Do zrobienia
-			+ algorytm tnący zdjęcie
 			+ algorytm mieszający
 			+ stoper
 			+ cookies z wynikami
-
-			wrzucimy pocięte elementy (id) do tablicy większej o 1 z każdej strony
-			będziemy losowali liczbę 1-4 lgpd i jeśli ta liczba będzie inna od tych dodatkowych oraz pusych
-			to będzie można wykonać ruch właśnie tym elementem
+			+ po 100 ruchach pojawia sie przycisk 'pomóc'
 		*/
       function ready() {
         slide = {
@@ -91,6 +96,7 @@
 			poziomTrudnosci: 4,
 			tabPoz: [],
 			slownik:{},
+			cyferki: false,
 
 
 			changePhoto: function(){
@@ -123,15 +129,28 @@
 					var btn = document.createElement('button')
 					var t = document.createTextNode(tabInner[i])
 					btn.appendChild(t)
-					btn.id = tabId[i]
+					btn.id = 'b'+tabId[i]
 					document.getElementById('buttony').appendChild(btn)
 					
 					btn.onclick = () => {
 						this.poziomTrudnosci= tabId[i]
 						document.getElementById('game').innerHTML = ''
 						this.losowanyObraz()
+						this.wyswietlUkladanke()
 					}
 				}
+
+				btn = document.createElement('button')
+				btn.id = 'pomoc'
+				t = document.createTextNode('Pomóc?')
+				btn.appendChild(t)
+				document.getElementById('buttony').appendChild(btn)
+				btn.onclick = () => {
+						this.cyferki = !this.cyferki
+						for(i=0; i<this.poziomTrudnosci**2; i++)
+							document.getElementById('game').children[i].innerHTML = ''
+						this.wyswietlUkladanke()
+					}
 			},
 
 
@@ -172,9 +191,11 @@
 					for (var j = 0; j < this.poziomTrudnosci; j++) {
 						var el = document.createElement('div')
 						el.style.width = String(600 / this.poziomTrudnosci) + 'px'
-						el.style.height = String(600 / this.poziomTrudnosci) + 'px'
+						el.style.height = String(600 / this.poziomTrudnosci) + 'px' // line-height: 100px;
+						el.style.lineHeight = String(600 / this.poziomTrudnosci) + 'px'
+						el.style.fontSize = 140/this.poziomTrudnosci+'px'
 
-						if (i * j != (this.poziomTrudnosci - 1) * (this.poziomTrudnosci - 1)) {
+						if (i * j != (this.poziomTrudnosci - 1)**2) {
 							el.id = l
 							this.slownik[l] = el
 							el.style.backgroundImage = `url(p${this.nrZdj}.jpg)`;
@@ -193,14 +214,30 @@
 				//console.log(this.slownik)
 				this.wyswietlUkladanke()
 			},
+
+
 			wyswietlUkladanke: function (){
 				for(var i = 1; i < this.tabPoz.length - 1; i++){
 					for(var j = 1; j < this.tabPoz[i].length - 1; j++){
-						document.getElementById('game').appendChild(this.slownik[this.tabPoz[i][j]])
-						//console.log(this.tabPoz[i][j])
+						document.getElementById('game').appendChild(this.slownik[this.tabPoz[i][j]])	
 					}
 				}
+				if(this.cyferki)
+					this.pomusz()
 			},
+
+
+			pomusz: function () {
+				for(var i = 1; i < this.tabPoz.length - 1; i++){
+					for(var j = 1; j < this.tabPoz[i].length - 1; j++){
+						if (i * j == this.poziomTrudnosci**2)	document.getElementById(0).innerText = this.poziomTrudnosci**2
+						else	document.getElementById(this.tabPoz[i][j]).innerText = this.tabPoz[i][j]	
+					}
+				}
+					
+						
+			},
+
 
 			move: function(){
 				var clicked = this.id
@@ -209,7 +246,6 @@
 				for(var i=1; i<slide.poziomTrudnosci+1; i++){
 					for(var j=1; j<slide.poziomTrudnosci+1; j++){
 						if(clicked == slide.tabPoz[i][j]){
-							console.log('dlaczego 2 razy?',i,j)
 							if(slide.tabPoz[i][j+1] == 0){
 								slide.tabPoz[i][j+1] = slide.tabPoz[i][j]
 								slide.tabPoz[i][j] = 0
@@ -243,7 +279,6 @@
 				slide.wyswietlUkladanke()
 
 			}
-			
         }
       slide.run()
       
