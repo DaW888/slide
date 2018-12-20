@@ -185,6 +185,7 @@
 							this.slownik[0] = el;
 							el.style.backgroundColor = 'transparent'
 						}
+						el.onclick = this.move
 						l++
 					}
 				}
@@ -199,6 +200,48 @@
 						//console.log(this.tabPoz[i][j])
 					}
 				}
+			},
+
+			move: function(){
+				var clicked = this.id
+				console.log(slide.tabPoz)
+				wyjdz = false
+				for(var i=1; i<slide.poziomTrudnosci+1; i++){
+					for(var j=1; j<slide.poziomTrudnosci+1; j++){
+						if(clicked == slide.tabPoz[i][j]){
+							console.log('dlaczego 2 razy?',i,j)
+							if(slide.tabPoz[i][j+1] == 0){
+								slide.tabPoz[i][j+1] = slide.tabPoz[i][j]
+								slide.tabPoz[i][j] = 0
+								console.log('lewy')
+								wyjdz = true
+								break
+							}else if(slide.tabPoz[i+1][j] == 0){
+								slide.tabPoz[i+1][j] = slide.tabPoz[i][j]
+								slide.tabPoz[i][j] = 0
+								console.log('gora')
+								wyjdz = true
+								break
+							}else if(slide.tabPoz[i-1][j] == 0){
+								slide.tabPoz[i-1][j] = slide.tabPoz[i][j]
+								slide.tabPoz[i][j] = 0
+								console.log('dol')
+								wyjdz = true
+								break
+							}else if(slide.tabPoz[i][j-1] == 0){
+								slide.tabPoz[i][j-1] = slide.tabPoz[i][j]
+								slide.tabPoz[i][j] = 0
+								console.log('prawo')
+								wyjdz = true
+								break
+								
+							}
+						}
+					}
+					if(wyjdz) break
+				}
+				slide.wyswietlUkladanke()
+
 			}
 			
         }
