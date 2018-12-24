@@ -288,43 +288,49 @@
 
 			mieszaj: function () {
 				var przeciwnyKier = 0
-				for(var r = 0; r < this.poziomTrudnosci **2 * 10; r++){
-					var kierunek = Math.floor(Math.random() * 4 + 1) 	//lewo-1, prawo-2, gora-3, dol-4
-					
-					while(kierunek == przeciwnyKier)
-						kierunek = Math.floor(Math.random() * 4 + 1)
+				for(var r = 0; r < slide.poziomTrudnosci **2 * 10; r++){
+					console.log('r '+r)
+					// var interwal = setInterval(function(){
 
-					for (var i = 0; i < this.poziomTrudnosci + 1; i++) {
-						for (var j = 0; j < this.poziomTrudnosci + 1; j++) {
-							if (this.tabPoz[i][j] == 0) {
-							
-								if (kierunek == 1 && this.tabPoz[i][j - 1] > 0) {	//lewo
-									console.log('przesuniecie w lewo')
-									this.tabPoz[i][j] = this.tabPoz[i][j - 1]
-									this.tabPoz[i][j - 1] = 0
-									przeciwnyKier = 2
-								} else if (kierunek == 2 && this.tabPoz[i][j + 1] > 0) {	//prawo
-									console.log('przesuniecie w prawo')
-									this.tabPoz[i][j] = this.tabPoz[i][j + 1]
-									this.tabPoz[i][j + 1] = 0
-									przeciwnyKier = 1
-								} else if (kierunek == 3 && this.tabPoz[i - 1][j] > 0) {	//gora
-									console.log('przesuniecie w gore')
-									this.tabPoz[i][j] = this.tabPoz[i - 1][j]
-									this.tabPoz[i - 1][j] = 0
-									przeciwnyKier = 4
-								} else if (kierunek == 4 && this.tabPoz[i + 1][j] > 0) {	//dol
-									console.log('przesuniecie w dol')
-									this.tabPoz[i][j] = this.tabPoz[i + 1][j]
-									this.tabPoz[i + 1][j] = 0
-									przeciwnyKier = 3
+						var kierunek = Math.floor(Math.random() * 4 + 1) 	//lewo-1, prawo-2, gora-3, dol-4
+						
+						while(kierunek == przeciwnyKier)
+							kierunek = Math.floor(Math.random() * 4 + 1)
+
+						for (var i = 0; i < slide.poziomTrudnosci + 1; i++) {
+							for (var j = 0; j < slide.poziomTrudnosci + 1; j++) {
+								if (slide.tabPoz[i][j] == 0) {
+								
+									if (kierunek == 1 && slide.tabPoz[i][j - 1] > 0) {	//lewo
+										slide.tabPoz[i][j] = slide.tabPoz[i][j - 1]
+										slide.tabPoz[i][j - 1] = 0
+										przeciwnyKier = 2
+									} else if (kierunek == 2 && slide.tabPoz[i][j + 1] > 0) {	//prawo
+										slide.tabPoz[i][j] = slide.tabPoz[i][j + 1]
+										slide.tabPoz[i][j + 1] = 0
+										przeciwnyKier = 1
+									} else if (kierunek == 3 && slide.tabPoz[i - 1][j] > 0) {	//gora
+										slide.tabPoz[i][j] = slide.tabPoz[i - 1][j]
+										slide.tabPoz[i - 1][j] = 0
+										przeciwnyKier = 4
+									} else if (kierunek == 4 && slide.tabPoz[i + 1][j] > 0) {	//dol
+										slide.tabPoz[i][j] = slide.tabPoz[i + 1][j]
+										slide.tabPoz[i + 1][j] = 0
+										przeciwnyKier = 3
+									}
+									//console.log(kierunek); console.log(this.tabPoz);
 								}
-								//console.log(kierunek); console.log(this.tabPoz);
 							}
 						}
+
+						slide.wyswietlUkladanke()
+					// }, 100)
+					
+					if(r == slide.poziomTrudnosci **2 * 10 - 1){
+						console.log('koniec')
+						// clearInterval(interwal)
 					}
 				}
-				this.wyswietlUkladanke()
 			}
         
 	
