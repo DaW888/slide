@@ -70,16 +70,23 @@
 
 	</style>
     <script>
-		/*	
-		Zrobione
-			- działa zmiana obrazu po kliku u góry
-			- dziala zmiana poziomu trudności
-			- algorytm tnący zdjęcie
+		
+		// changePhoto() - zmiana zdjecia po kliknieciu zdj w headerze 
+		// createDom() - tworzenie szkieletu strony, zmiana poziomu trudnosci
+		// loadPhoto() - ładowanie zdjecia do Headera
+		// losowanyObraz() - cięcie obrazu na podstawie tego ktory znajduje sie w headerze
+		// move() - po kliknieciu na div z fragmentem obrazka to jest on przesuwany w wolne pole
+		// pomusz() - dodane cyferek do fragmentow by łatwiej sie połapać (właczane przyciskiem)
+		// run() - wywołanie wszystkich funkcji
+		// timer() - div z timerem
+		// wyswietlUkladanke() - wyswietlanie ukladanki na podstawie tablicy pozycji (tabpoz) oraz elementow z słownika
+
+		/*
 		Do zrobienia
 			+ algorytm mieszający
 			+ stoper
 			+ cookies z wynikami
-			+ po 100 ruchach pojawia sie przycisk 'pomóc'
+			+ po 100 ruchach pojawia sie przycisk 'pomóc' albo i nie
 		*/
       function ready() {
         slide = {
@@ -137,6 +144,7 @@
 						document.getElementById('game').innerHTML = ''
 						this.losowanyObraz()
 						this.wyswietlUkladanke()
+						this.mieszaj()
 					}
 				}
 
@@ -228,14 +236,12 @@
 
 
 			pomusz: function () {
-				for(var i = 1; i < this.tabPoz.length - 1; i++){
-					for(var j = 1; j < this.tabPoz[i].length - 1; j++){
-						if (i * j == this.poziomTrudnosci**2)	document.getElementById(0).innerText = this.poziomTrudnosci**2
+				for(var i = 1; i < this.poziomTrudnosci+1; i++){
+					for(var j = 1; j < this.poziomTrudnosci+1; j++){
+						if (this.tabPoz[i][j] == 0)		document.getElementById(0).innerText = '' //this.poziomTrudnosci**2 - jesli chce cyfre w pustym
 						else	document.getElementById(this.tabPoz[i][j]).innerText = this.tabPoz[i][j]	
 					}
-				}
-					
-						
+				}	
 			},
 
 
@@ -278,8 +284,52 @@
 				}
 				slide.wyswietlUkladanke()
 
+			},
+
+			mieszaj: function () {
+				var przeciwnyKier = 0
+				for(var r = 0; r < this.poziomTrudnosci **2 * 10; r++){
+					var kierunek = Math.floor(Math.random() * 4 + 1) 	//lewo-1, prawo-2, gora-3, dol-4
+					
+					while(kierunek == przeciwnyKier)
+						kierunek = Math.floor(Math.random() * 4 + 1)
+
+					for (var i = 0; i < this.poziomTrudnosci + 1; i++) {
+						for (var j = 0; j < this.poziomTrudnosci + 1; j++) {
+							if (this.tabPoz[i][j] == 0) {
+							
+								if (kierunek == 1 && this.tabPoz[i][j - 1] > 0) {	//lewo
+									console.log('przesuniecie w lewo')
+									this.tabPoz[i][j] = this.tabPoz[i][j - 1]
+									this.tabPoz[i][j - 1] = 0
+									przeciwnyKier = 2
+								} else if (kierunek == 2 && this.tabPoz[i][j + 1] > 0) {	//prawo
+									console.log('przesuniecie w prawo')
+									this.tabPoz[i][j] = this.tabPoz[i][j + 1]
+									this.tabPoz[i][j + 1] = 0
+									przeciwnyKier = 1
+								} else if (kierunek == 3 && this.tabPoz[i - 1][j] > 0) {	//gora
+									console.log('przesuniecie w gore')
+									this.tabPoz[i][j] = this.tabPoz[i - 1][j]
+									this.tabPoz[i - 1][j] = 0
+									przeciwnyKier = 4
+								} else if (kierunek == 4 && this.tabPoz[i + 1][j] > 0) {	//dol
+									console.log('przesuniecie w dol')
+									this.tabPoz[i][j] = this.tabPoz[i + 1][j]
+									this.tabPoz[i + 1][j] = 0
+									przeciwnyKier = 3
+								}
+								//console.log(kierunek); console.log(this.tabPoz);
+							}
+						}
+					}
+				}
+				this.wyswietlUkladanke()
 			}
-        }
+        
+	
+		}
+
       slide.run()
       
       
