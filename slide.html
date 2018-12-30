@@ -53,6 +53,7 @@
 		#timer{
 			color: white;
 			font-size: 20px;
+			font-family: 'Consolas', Courier, monospace;
 			margin: auto;
 			display: block;
 			text-align: center;
@@ -92,6 +93,7 @@
 		// sprawdz(sWyg) -  (/boolen/sWyg = True - to sprawdza czy wygrales, inaczej tylko zmiena kolor tekstu w 'pomoc') 
 		// timer() - div z timerem
 		// wyswietlUkladanke() - wyswietlanie ukladanki na podstawie tablicy pozycji (tabpoz) oraz elementow z słownika
+		// konwersjaCzasu() - formatuje czas do czytelniejszej formy
 
 		/* ===== WARTOSCI ===== */
 		// cyferki - pokazanie cyferek na elementach układanki (uproszczenie)
@@ -113,7 +115,7 @@
 			run: function (){
 				this.createDom()
 				this.loadphoto()
-				this.timer()
+				// this.timer()
 				this.losowanyObraz()
 				this.changePhoto()
 			},
@@ -125,6 +127,8 @@
 			slownik:{},
 			cyferki: false,
 			nrRuchu: 0,
+			LicznikStart:null,
+			tabCzasu:[],
 
 
 			changePhoto: function(){
@@ -187,6 +191,7 @@
 				//licznik.appendChild(t)
 				document.getElementsByTagName('header')[0].appendChild(licznik)	
 				document.getElementById('licznik').style.fontSize = window.innerHeight/50+2+"px";
+
 			},
 
 
@@ -198,19 +203,35 @@
 
 
 			timer: function (Start){
-				el = document.createElement('p')
-				
-				if(!Start){
-					t = new Date
-					var CzasPocz = [t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()]
-					el.innerHTML = `${CzasPocz[0]} : ${CzasPocz[1]} : ${CzasPocz[2]} : ${CzasPocz[3]}`
-					document.getElementById('timer').appendChild(el)
+				if(Start == 'start'){
+					this.LicznikStart = performance.now() //[t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()]
+					document.getElementById('timer').innerHTML = '00 : 00 : 00 : 000' 
+					
+				}else if(Start =='running'){	
+					var stoper = Math.round(performance.now() - this.LicznikStart)
+					wyswietl = this.konwersjaCzasu(stoper)
+					console.log(stoper)
+					document.getElementById('timer').innerHTML = wyswietl
+
+				}else if(Start == 'stop'){
+					var koniec = Math.round(performance.now() - this.LicznikStart)
+					wyswietl = this.konwersjaCzasu(koniec)
+					document.getElementById('timer').innerHTML = wyswietl
+					return wyswietl
 				}
-				if(!Start){	
-					t = new Date
-					var CzasKon = [t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()]
-					console.log(CzasKon)
+				// requestAnimationFrame(slide.timer(true))
+			},
+			konwersjaCzasu: function (czas) {
+				czas = String(czas).padStart(9, '0')
+				this.tabCzasu = [Math.floor(czas/(60000*60)), Math.floor(czas/60000)%60, Math.floor(czas/1000)%60, czas.slice(6,9)]
+				for(i=0; i<this.tabCzasu.length-1; i++){
+					this.tabCzasu[i] = String(this.tabCzasu[i]).padStart(2, '0')
 				}
+				this.tabCzasu[this.tabCzasu.length - 1].padStart(3, '0')
+
+				// efekt = `${czas.slice(0, 2)} : ${czas.slice(2,4)} : ${czas.slice(4,6)} : ${czas.slice(6, 9)}`
+				efekt = `${this.tabCzasu[0]} : ${this.tabCzasu[1]} : ${this.tabCzasu[2]} : ${this.tabCzasu[3]}`
+				return efekt
 			},
 
 
@@ -327,7 +348,9 @@
 				slide.wyswietlUkladanke()
 
 				document.getElementById('licznik').innerHTML = `nr Ruchu: ${slide.nrRuchu}`
+				slide.timer('running')
 				slide.sprawdz(true)
+
 
 			},
 
@@ -379,6 +402,8 @@
 						// clearInterval(interwal)
 					}
 				}
+				// requestAnimationFrame(slide.timer())
+				slide.timer('start')
 			},
 			sprawdz: function (sWyg) {
 				var l = 1
@@ -402,14 +427,14 @@
 							}else{
 								document.getElementById(this.tabPoz[i][j]).style.color = 'white'; 
 							}
-
 						}
 						l++
 					}
 				}
 				console.log(this.nrRuchu)
 				if(tak == this.poziomTrudnosci**2 && sWyg){
-					alert(`WYGRAŁEŚ!!!! w ${this.nrRuchu}`)
+					var czas = this.timer('stop')
+					alert(`WYGRAŁEŚ!!!! w ${this.nrRuchu}, czas: ${czas}`)
 				}
 			}
         
