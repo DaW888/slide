@@ -124,7 +124,7 @@
 			border: 2px solid rgb(0, 160, 255);
 			height: 30px;
 			text-align: center;
-			background-color: rgb(26, 26, 27);
+			background-color: rgba(26, 26, 27, 0.5);
 		}
 
 		#game > label > button{
@@ -171,6 +171,7 @@
 				this.loadphoto()
 				this.losowanyObraz() // to do usuniecia a onclick ustawienie borderu na #game
 				this.changePhoto()
+				this.rekordy()
 			},
 
 
@@ -526,6 +527,15 @@
 						// po kliknięciu przycisku 'dodaj' zostaną dodane cookies, usunięcie całego kontekstu strony, pokazanie tabeli z wynikami
 						// porównanie wyników rawRekord z pozostałymi, będą one zapisywane w raw a podczas wyświetlania formatowane funkcją 'konwersjaCzasu'
 						// dodanie buttonow jednego prowadzacego do rekordow, a drugigo wracajacego do gry(wracanie do zapisu gry czy zaczynamy od nowa???)
+						// delete cookie: document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+						var rezultat = [nick, rawRekord, slide.nrRuchu]
+						//document.cookie = "1="+rezultat+";" //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
+						// a to string wiec będziemy na nim pracować, join, split itd
+						a = document.cookie
+						a= a.split(';')
+						console.log(a)
+
+
 					}
 					lab.appendChild(btn) 
 					game.appendChild(lab)
@@ -537,6 +547,18 @@
 					el.src = `p${this.nrZdj}.jpg`;
 					game.appendChild(el)
 				}
+			},
+			rekordy: function () {
+				var tabw = []
+				var cookie = document.cookie
+				cookie = cookie.split(';')
+				for(var i = 0; i< cookie.length; i++){
+					tabw.push(cookie[i].split(','))
+				}
+				console.log(tabw)
+					//0: (3) ["temp=NoBody", "1297", "0"]
+					//1: (3) [" 1=NoBody", "27766", "64"]
+					//2: (3) [" 2=NoBody", "7548", "2"]
 			}
         
 	
