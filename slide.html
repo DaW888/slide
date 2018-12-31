@@ -89,6 +89,8 @@
 			text-shadow: 1px 1px 3px black;
 			text-align: center;
 			width: 600px;
+			background-color: rgba(26, 26, 27, 0.12);
+
 		}
 
 		#game > p > b{
@@ -269,7 +271,8 @@
 					var koniec = Math.round(performance.now() - this.LicznikStart)
 					wyswietl = this.konwersjaCzasu(koniec)
 					document.getElementById('timer').innerHTML = wyswietl
-					return wyswietl
+					this.LicznikStart = null
+					return [wyswietl, koniec]
 				}
 				// requestAnimationFrame(slide.timer(true))
 			},
@@ -491,6 +494,9 @@
 				console.log(this.nrRuchu)
 				if(tak == this.poziomTrudnosci**2 && sWyg){
 					var czas = this.timer('stop')
+					var rawRekord = czas[1]
+					var formatedRekord = czas[0]
+
 					var game = document.getElementById('game')
 					game.innerHTML = ''
 
@@ -499,7 +505,7 @@
 					game.appendChild(p)
 					
 					p = document.createElement('p')
-					p.innerHTML = `${czas}`
+					p.innerHTML = `${formatedRekord}`
 					game.appendChild(p)
 
 					var lab = document.createElement('label')
@@ -515,8 +521,11 @@
 					btn.id = 'dodaj'
 					btn.innerHTML = 'dodaj'
 					btn.onclick = () => {
-						a = document.getElementById('inputBox').value
-						console.log(a)
+						var nick = document.getElementById('inputBox').value
+						console.log(`Nick: ${nick} +++ Czas: ${formatedRekord} +++ nr Ruchu: ${this.nrRuchu}`) //dodanie tego jako cookies
+						// po kliknięciu przycisku 'dodaj' zostaną dodane cookies, usunięcie całego kontekstu strony, pokazanie tabeli z wynikami
+						// porównanie wyników rawRekord z pozostałymi, będą one zapisywane w raw a podczas wyświetlania formatowane funkcją 'konwersjaCzasu'
+						// dodanie buttonow jednego prowadzacego do rekordow, a drugigo wracajacego do gry(wracanie do zapisu gry czy zaczynamy od nowa???)
 					}
 					lab.appendChild(btn) 
 					game.appendChild(lab)
