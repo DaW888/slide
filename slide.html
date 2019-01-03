@@ -238,6 +238,7 @@
 			nrRuchu: 0,
 			LicznikStart:null,
 			tabCzasu:[],
+			czasStop: null,
 
 
 			changePhoto: function(){
@@ -324,13 +325,13 @@
 					document.getElementById('timer').innerHTML = wyswietl
 
 				} else if (Start == 'stop') {
+					clearInterval(this.czasStop)
 					var koniec = Math.round(performance.now() - this.LicznikStart)
 					wyswietl = this.konwersjaCzasu(koniec)
 					document.getElementById('timer').innerHTML = wyswietl
 					this.LicznikStart = null
 					return [wyswietl, koniec]
 				}
-				// requestAnimationFrame(slide.timer(true))
 			},
 
 
@@ -472,9 +473,10 @@
 			mieszaj: function () {
 				this.nrRuchu = 0
 				var przeciwnyKier = 0
-				for(var r = 0; r < slide.poziomTrudnosci **2 * 10; r++){
 					console.log('r '+r)
-					// var interwal = setInterval(function(){
+					var r = 0
+					var interwal = () => {
+						r++
 
 						var kierunek = Math.floor(Math.random() * 4 + 1) 	//lewo-1, prawo-2, gora-3, dol-4
 						
@@ -510,15 +512,14 @@
 						slide.wyswietlUkladanke()
 						document.getElementById('licznik').innerHTML = `nr Ruchu: ${slide.nrRuchu}`
 						slide.sprawdz(false)
-					// }, 100)
-					
-					if(r == slide.poziomTrudnosci **2 * 10 - 1){
-						console.log('koniec')
-						// clearInterval(interwal)
+						if(r < slide.poziomTrudnosci **2 * 10){
+							setTimeout(interwal, 10)
+						}else{
+								slide.timer('start')
+								slide.czasStop = setInterval("slide.timer('running')", 5)
+						}
 					}
-				}
-				// requestAnimationFrame(slide.timer())
-				slide.timer('start')
+					setTimeout(interwal, 100)
 			},
 
 
@@ -652,7 +653,7 @@
 					for(var j = 0; j<tabRek[i].length-1; j++){
 						td = document.createElement('td')
 						if(j==2)
-							td.innerHTML = this.konwersjaCzasu(tabRek[i][j])
+							td.innerHTML = this.konwersjaCzasu(tabRek[i][j]).replace(/\s/g, "");
 						else	
 							td.innerHTML = tabRek[i][j]
 						
