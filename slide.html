@@ -57,8 +57,12 @@
 			margin: auto;
 			display: block;
 			text-align: center;
-
 		}
+		#timer > img{
+			width: 2vw;
+		}
+
+
 		#game{
 			width: 600px;
 			height: 600px;
@@ -230,7 +234,7 @@
 			},
 
 
-			nrZdj: 4,
+			nrZdj: 1,
 			poziomTrudnosci: 4,
 			tabPoz: [],
 			slownik:{},
@@ -242,16 +246,17 @@
 
 
 			changePhoto: function(){
-				var ilObrazkow = 4
+				var ilObrazkow = 8
 				var obrazek = document.getElementsByTagName('header')[0].querySelector('img')
 				obrazek.addEventListener('click', () =>{
+					clearInterval(this.czasStop)
 					this.nrZdj ++
 					if (this.nrZdj > ilObrazkow) this.nrZdj = 1 
 					document.getElementsByTagName('header')[0].querySelector('img').src = `p${this.nrZdj}.jpg`
 					document.getElementById('game').innerHTML = ''
 					this.losowanyObraz()
 				})
-				document.getElementById('timer').innerHTML = '00 : 00 : 00 : 000' 
+				document.getElementById('timer').innerHTML = this.IntToImage('00:00:00:000') 
 			},
 
 
@@ -316,19 +321,20 @@
 			timer: function (Start){
 				if(Start == 'start'){
 					this.LicznikStart = performance.now() //[t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()]
-					document.getElementById('timer').innerHTML = '00 : 00 : 00 : 000' 
+					document.getElementById('timer').innerHTML = this.IntToImage('00:00:00:000') 
 					
 				} else if (Start == 'running') {
 					var stoper = Math.round(performance.now() - this.LicznikStart)
 					wyswietl = this.konwersjaCzasu(stoper)
-					console.log(stoper)
-					document.getElementById('timer').innerHTML = wyswietl
+					wyswietlPNG = this.IntToImage(wyswietl)
+					document.getElementById('timer').innerHTML = wyswietlPNG
 
 				} else if (Start == 'stop') {
 					clearInterval(this.czasStop)
 					var koniec = Math.round(performance.now() - this.LicznikStart)
 					wyswietl = this.konwersjaCzasu(koniec)
-					document.getElementById('timer').innerHTML = wyswietl
+					wyswietlPNG = this.IntToImage(wyswietl)
+					document.getElementById('timer').innerHTML = wyswietlPNG
 					this.LicznikStart = null
 					return [wyswietl, koniec]
 				}
@@ -344,8 +350,22 @@
 				this.tabCzasu[this.tabCzasu.length - 1].padStart(3, '0')
 
 				// efekt = `${czas.slice(0, 2)} : ${czas.slice(2,4)} : ${czas.slice(4,6)} : ${czas.slice(6, 9)}`
-				efekt = `${this.tabCzasu[0]} : ${this.tabCzasu[1]} : ${this.tabCzasu[2]} : ${this.tabCzasu[3]}`
-				//"hello world".replace(/\s/g, ""); - usuwanie whitespace
+				efekt = `${this.tabCzasu[0]}:${this.tabCzasu[1]}:${this.tabCzasu[2]}:${this.tabCzasu[3]}`
+				return efekt
+			},
+
+
+			IntToImage: function (czasFormated) {
+				var efekt = ''
+				var tab = ['7seg/LED_digit_0.png', '7seg/LED_digit_1.png', '7seg/LED_digit_2.png', '7seg/LED_digit_3.png', '7seg/LED_digit_4.png', 
+				'7seg/LED_digit_5.png', '7seg/LED_digit_6.png', '7seg/LED_digit_7.png', '7seg/LED_digit_8.png', '7seg/LED_digit_9.png', '7seg/LED_colon.png']
+				
+				for(var i = 0; i<czasFormated.length; i++){
+					if(czasFormated[i] == ':')
+						efekt += `<img src="${tab[10]}">`
+					else
+						efekt += `<img src="${tab[parseInt(czasFormated[i])]}">`
+				}
 				return efekt
 			},
 
@@ -471,6 +491,8 @@
 
 
 			mieszaj: function () {
+				console.log('czas inteeaw'+ this.czasStop)
+				clearInterval(this.czasStop)
 				this.nrRuchu = 0
 				var przeciwnyKier = 0
 					console.log('r '+r)
@@ -512,11 +534,11 @@
 						slide.wyswietlUkladanke()
 						document.getElementById('licznik').innerHTML = `nr Ruchu: ${slide.nrRuchu}`
 						slide.sprawdz(false)
-						if(r < slide.poziomTrudnosci **2 * 10){
-							setTimeout(interwal, 10)
+						if(r < slide.poziomTrudnosci **2 * 15){
+							setTimeout(interwal, 8)
 						}else{
 								slide.timer('start')
-								slide.czasStop = setInterval("slide.timer('running')", 5)
+								slide.czasStop = setInterval("slide.timer('running')", 7)
 						}
 					}
 					setTimeout(interwal, 100)
