@@ -343,7 +343,8 @@
 				this.tabCzasu[this.tabCzasu.length - 1].padStart(3, '0')
 
 				// efekt = `${czas.slice(0, 2)} : ${czas.slice(2,4)} : ${czas.slice(4,6)} : ${czas.slice(6, 9)}`
-				efekt = `${this.tabCzasu[0]}:${this.tabCzasu[1]}:${this.tabCzasu[2]}:${this.tabCzasu[3]}`
+				efekt = `${this.tabCzasu[0]} : ${this.tabCzasu[1]} : ${this.tabCzasu[2]} : ${this.tabCzasu[3]}`
+				//"hello world".replace(/\s/g, ""); - usuwanie whitespace
 				return efekt
 			},
 
@@ -584,7 +585,7 @@
 						// dodanie buttonow jednego prowadzacego do rekordow, a drugigo wracajacego do gry(wracanie do zapisu gry czy zaczynamy od nowa???)
 						// delete cookie: document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 						var rezultat = [nick, rawRekord, slide.nrRuchu, `${slide.poziomTrudnosci} x ${slide.poziomTrudnosci}`]
-						document.cookie = "2="+rezultat+";" //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
+						document.cookie = "1="+rezultat+";" //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
 						// a to string wiec będziemy na nim pracować, join, split itd
 						//document.cookie = "temp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 						this.rekordy()
