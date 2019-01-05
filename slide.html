@@ -50,6 +50,17 @@
 			border: 2px outset rgb(0, 160, 255);
 		}
 
+		#buttony input{
+			width: 35px;
+			margin: 0 5px;
+			padding: 1px 2px;
+			background-color: rgb(26, 26, 27);
+			font-size: 14px;
+			color: aqua;
+			border: 2px outset rgb(255, 0, 162);
+			
+		}
+
 		#timer{
 			color: white;
 			font-size: 25px;
@@ -243,6 +254,7 @@
 			LicznikStart:null,
 			tabCzasu:[],
 			czasStop: null,
+			czasMieszania: null,
 
 
 			changePhoto: function(){
@@ -271,11 +283,11 @@
 					document.body.appendChild(el)
 				}
 
-				var tabInner = ['3 x 3', '4 x 4', '5 x 5', '6 x 6']
+				// tworzenie buttonow zmieniajacych poziom trudnosci
 				var tabId = [3, 4, 5, 6]
 				for(let i=0; i<tabId.length; i++){
 					var btn = document.createElement('button')
-					var t = document.createTextNode(tabInner[i])
+					var t = document.createTextNode(`${tabId[i]} x ${tabId[i]}`)
 					btn.appendChild(t)
 					btn.id = 'b'+tabId[i]
 					document.getElementById('buttony').appendChild(btn)
@@ -289,6 +301,8 @@
 					}
 				}
 
+
+				// tworzenie buttona 'Pomóc?'
 				btn = document.createElement('button')
 				btn.id = 'pomoc'
 				t = document.createTextNode('Pomóc?')
@@ -300,6 +314,21 @@
 							document.getElementById('game').children[i].innerHTML = ''
 						this.wyswietlUkladanke()
 					}
+
+				// tworzenie inputa obok buttonow
+				var inp = document.createElement('input')
+				inp.type = 'number'; inp.value = 7
+				inp.max = 20; inp.min = 7;
+				inp.id = 'PozInput'
+				inp.onclick = () => {
+						this.poziomTrudnosci= parseInt(document.getElementById('PozInput').value)
+						document.getElementById('game').innerHTML = ''
+						this.losowanyObraz()
+						this.wyswietlUkladanke()
+						this.mieszaj()
+					}
+				document.getElementById('buttony').appendChild(inp)
+				
 				
 				var licznik = document.createElement('div')
 				licznik.id = 'licznik'
@@ -357,14 +386,11 @@
 
 			IntToImage: function (czasFormated) {
 				var efekt = ''
-				var tab = ['7seg/LED_digit_0.png', '7seg/LED_digit_1.png', '7seg/LED_digit_2.png', '7seg/LED_digit_3.png', '7seg/LED_digit_4.png', 
-				'7seg/LED_digit_5.png', '7seg/LED_digit_6.png', '7seg/LED_digit_7.png', '7seg/LED_digit_8.png', '7seg/LED_digit_9.png', '7seg/LED_colon.png']
-				
 				for(var i = 0; i<czasFormated.length; i++){
 					if(czasFormated[i] == ':')
-						efekt += `<img src="${tab[10]}">`
+						efekt += `<img src="7seg/LED_colon.png">`
 					else
-						efekt += `<img src="${tab[parseInt(czasFormated[i])]}">`
+						efekt += `<img src="7seg/LED_digit_${czasFormated[i]}.png">`
 				}
 				return efekt
 			},
@@ -535,13 +561,15 @@
 						document.getElementById('licznik').innerHTML = `nr Ruchu: ${slide.nrRuchu}`
 						slide.sprawdz(false)
 						if(r < slide.poziomTrudnosci **2 * 15){
-							setTimeout(interwal, 8)
+						clearTimeout(slide.czasMieszania)
+						slide.czasMieszania = setTimeout(interwal, 8)
 						}else{
 								slide.timer('start')
 								slide.czasStop = setInterval("slide.timer('running')", 7)
 						}
 					}
-					setTimeout(interwal, 100)
+					clearTimeout(this.czasMieszania)
+					this.czasMieszania = setTimeout(interwal, 8)
 			},
 
 
