@@ -225,6 +225,10 @@
 		// timer() - div z timerem
 		// wyswietlUkladanke() - wyswietlanie ukladanki na podstawie tablicy pozycji (tabpoz) oraz elementow z słownika
 		// konwersjaCzasu() - formatuje czas do czytelniejszej formy
+		// IntToImage(czasFormated) - przeksztalca stringa w obraz
+		// rekordy()
+		// rysujTabeleWynikow(tabRek) - rysuj tabele z wynikami na koniec
+
 
 		/* ===== WARTOSCI ===== */
 		// cyferki - pokazanie cyferek na elementach układanki (uproszczenie)
@@ -233,6 +237,9 @@
 		// poziomTrudnosci - poziomTrudnossci x poziomTrudnossci (rozmiar planszy)
 		// slownik{} - zostają do niego dodane wszystkie wartosci pocietych elementow
 		// tabPoz[] - zawiera aktualna pozycje kazdego diva (jesli wartosci sa kolejno rosnaco to wygrana)
+		// czasStop - czysci interval, zatrzymuje czas w timerze
+		// czasMieszania - czysci timeout, zapobiega powtarzaniu mieszania kiedy spamujemy zmiane trudnosci
+
 
       function ready() {
         slide = {
@@ -258,7 +265,7 @@
 
 
 			changePhoto: function(){
-				var ilObrazkow = 8
+				var ilObrazkow = 20
 				var obrazek = document.getElementsByTagName('header')[0].querySelector('img')
 				obrazek.addEventListener('click', () =>{
 					clearInterval(this.czasStop)
