@@ -79,7 +79,7 @@
 			height: 600px;
 			margin: 20px auto;
 			display: block;
-			border: 2px solid aqua;
+			/* border: 2px solid aqua; */
 		}
 
 		#game > div{
@@ -255,11 +255,11 @@
 			nrZdj: 1,
 			poziomTrudnosci: 4,
 			tabPoz: [],
-			slownik:{},
+			slownik: {},
 			cyferki: false,
 			nrRuchu: 0,
-			LicznikStart:null,
-			tabCzasu:[],
+			LicznikStart: null,
+			tabCzasu: [],
 			czasStop: null,
 			czasMieszania: null,
 
@@ -268,6 +268,7 @@
 				var ilObrazkow = 20
 				var obrazek = document.getElementsByTagName('header')[0].querySelector('img')
 				obrazek.addEventListener('click', () =>{
+					document.getElementById('game').style.border = 0
 					clearInterval(this.czasStop)
 					this.nrZdj ++
 					if (this.nrZdj > ilObrazkow) this.nrZdj = 1 
@@ -300,6 +301,7 @@
 					document.getElementById('buttony').appendChild(btn)
 					
 					btn.onclick = () => {
+						document.getElementById('game').style.border = '2px solid aqua'
 						this.poziomTrudnosci= tabId[i]
 						document.getElementById('game').innerHTML = ''
 						this.losowanyObraz()
@@ -628,7 +630,7 @@
 					el.type = 'text'
 					el.id = 'inputBox'
 					el.backgroundColor =  'transparent'
-					el.defaultValue = 'NoBody'
+					el.defaultValue = 'Nikt'
 					lab.innerText = 'Podaj swój Nick: '
 					lab.appendChild(el)
 					
@@ -642,10 +644,18 @@
 						// porównanie wyników rawRekord z pozostałymi, będą one zapisywane w raw a podczas wyświetlania formatowane funkcją 'konwersjaCzasu'
 						// dodanie buttonow jednego prowadzacego do rekordow, a drugigo wracajacego do gry(wracanie do zapisu gry czy zaczynamy od nowa???)
 						// delete cookie: document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-						var rezultat = [nick, rawRekord, slide.nrRuchu, `${slide.poziomTrudnosci} x ${slide.poziomTrudnosci}`]
-						document.cookie = "1="+rezultat+";" //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
+						
+
+						var now = new Date
+						var time = now.getTime()
+						var expire = time + 1000 * 60 * 60 * 24 * 30 * 24 // 2 lata
+						now.setTime(expire)
+						var expireTime = now.toGMTString()
+						var rezultat = [nick, rawRekord, slide.nrRuchu, `${slide.poziomTrudnosci}`]
+						document.cookie = `${time}=${rezultat}; expires=${expireTime};`  //nick+"="+rezultat+"; expires"+expireTime+";"  //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
+						console.log(document.cookie)
 						// a to string wiec będziemy na nim pracować, join, split itd
-						//document.cookie = "temp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+						// document.cookie = "temp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 						this.rekordy()
 						
 
@@ -665,35 +675,32 @@
 
 
 			rekordy: function () {
-				var tabRek = []
-				var cookie = document.cookie
-				cookie = cookie.split(';')
-				for(var i = 0; i< cookie.length; i++){
-					tabRek.push(cookie[i].split(','))
-				}
-				for(var i = 0; i< tabRek.length; i++){
-					firstValueCookie = tabRek[i][0]
-					tabRek[i].shift()
-					firstValueCookie = firstValueCookie.split('=')
-					tabRek[i].unshift(firstValueCookie[0], firstValueCookie[1])
-
-				}
+				console.log(document.cookie)
+				var tabRek = this.cookieToArray()
 				console.log(tabRek)
-				document.body.innerHTML = '' //tr th td
-				var tabKonkPoziomu = []
-				for(i = 0; i<tabRek.length; i++){
-					for(j = 0; j<tabRek[i].length; j++){
-						if(tabRek[i][j] == `${this.poziomTrudnosci} x ${this.poziomTrudnosci}`){
-							tabKonkPoziomu.push(tabRek[i])
-						}
-					}
-				}
-				console.log(tabKonkPoziomu)
 
-				this.rysujTabeleWynikow(tabKonkPoziomu)
+				tabRek.sort((a,b) => {
+					return a[1] - b[1]
+				})
+				
+				console.log(tabRek)
+
+				var tabKonkrPoz = tabRek.filter(item => item[3] == String(this.poziomTrudnosci))
+				console.log(tabKonkrPoz)
+				
+				document.body.innerHTML = ''
+				this.rysujTabeleWynikow(tabKonkrPoz)
 				
 			},
-			rysujTabeleWynikow: function (tabRek) {
+			rysujTabeleWynikow: function (tabKonkrPoz) {
+				
+				var tabToPrint = [...tabKonkrPoz]
+				for(var i = 0; i<tabKonkrPoz.length; i++){
+					tabKonkrPoz[i].splice(0, 0, i+1)
+				}
+				console.log(tabKonkrPoz)
+				console.log(tabToPrint)
+
 				var table = document.createElement('table')
 				var tr = document.createElement('tr')
 				var naglowek = ['Nr.', 'Nick', 'Czas', 'Il. Kliknięć']
@@ -705,26 +712,27 @@
 				}
 
 				table.appendChild(tr)
-				for(var i = 0; i<tabRek.length; i++){
+				var l = 0
+				for(var i = 0; i<tabToPrint.length; i++){
 					tr = document.createElement('tr')
-					for(var j = 0; j<tabRek[i].length-1; j++){
+					for(var j = 0; j<tabToPrint[i].length-1; j++){
 						td = document.createElement('td')
 						if(j==2)
-							td.innerHTML = this.konwersjaCzasu(tabRek[i][j]).replace(/\s/g, "");
+							td.innerHTML = this.konwersjaCzasu(tabToPrint[i][j]);
 						else	
-							td.innerHTML = tabRek[i][j]
+							td.innerHTML = tabToPrint[i][j]
 						
 						tr.appendChild(td)
 					}
 					table.append(tr)
+					l++
+					if(l>=10) break
 				}
-
-
 				
 				bt = document.createElement('button')
 				bt.id = 'powrotDoGry'
 				bt.innerHTML = 'Powrót do Gry'
-				bt.onclick = () =>{
+				bt.onclick = () => {
 					document.body.innerHTML = ''
 					slide.run()
 				}
@@ -733,27 +741,73 @@
 
 				var d = document.createElement('div')
 				d.id = 'buttonyWynik'
-				var tabInner = ['3 x 3', '4 x 4', '5 x 5', '6 x 6']
-				for(i = 0; i<tabInner.length; i++){
+				var tabInner = [3, 4, 5, 6]
+				for(var i = 0; i<tabInner.length; i++){
 					bt = document.createElement('button')
 					bt.id = 'bb'+String(i+3)
-					bt.innerHTML = tabInner[i]
-					bt.onclick = () => {
-						console.log(tabRek)
-						document.body.innerHTML = '' //tr th td
-						this.rysujTabeleWynikow(tabRek)
-						var tabKonkPoziomu = []
-						for (i = 0; i < tabRek.length; i++) {
-							for (j = 0; j < tabRek[i].length; j++) { //ten for jest zle
-								if (tabRek[i][j] == tabInner[i]) {
-									tabKonkPoziomu.push(tabRek[i])
-								}
-							}
-						}
-					}
+					bt.innerHTML = `${tabInner[i]} x ${tabInner[i]}` 
+					console.log(tabKonkrPoz)
+
+					// dziala function asd(){
+					// dziala 	console.log(tabKonkrPoz)
+					// dziala }
+					// dziala bt.onclick = asd
+					bt.addEventListener('click', function () {
+						console.log(this.id)
+						console.log(tabKonkrPoz)
+						slide.poziomTrudnosci = this.id[2]
+						document.body.innerHTML = ''
+						slide.rekordy()
+					})
+					
+					//bt.onclick = () => {
+					//	console.log(this)
+					//	console.log(i)
+					//	console.log(tabInner[i])
+					//	this.poziomTrudnosci = tabInner[i]
+					//	console.log(tabKonkrPoz)
+					//	// document.body.innerHTML = ''
+					//	// this.rysujTabeleWynikow(tabKonkrPoz)
+					//}
+
+
+					//bt.onclick = () => {
+					//	asd()
+					//	debugger
+					//	console.log(tabKonkrPoz)
+					//	document.body.innerHTML = '' //tr th td
+					//	this.rysujTabeleWynikow(tabKonkrPoz)
+					//	var tabKonkrPoz = []
+					//	for (i = 0; i < tabKonkrPoz.length; i++) {
+					//		for (j = 0; j < tabKonkrPoz[i].length; j++) { //ten for jest zle
+					//			if (tabKonkrPoz[i][j] == tabInner[i]) {
+					//				tabKonkrPoz.push(tabKonkrPoz[i])
+					//			}
+					//		}
+					//	}
+					//}
 					d.appendChild(bt)
 				}
 				document.body.appendChild(d)
+			},
+
+			cookieToArray: function () {
+			var tabRek = []
+			var cookie = document.cookie
+			cookie = cookie.replace(/\s/g, "")
+			cookie = cookie.split(';')
+			for(var i = 0; i< cookie.length; i++){
+				tabRek.push(cookie[i].split(','))
+			}
+			for(var i = 0; i< tabRek.length; i++){
+				firstValueCookie = tabRek[i][0]
+				tabRek[i].shift()
+				firstValueCookie = firstValueCookie.split('=')
+				// tabRek[i].unshift(firstValueCookie[0], firstValueCookie[1])
+				tabRek[i].unshift(firstValueCookie[1])
+			}
+
+			return tabRek
 			}
         
 	
