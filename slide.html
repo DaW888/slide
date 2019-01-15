@@ -21,12 +21,32 @@
 		header{
 			position: relative;
 		}
-		header > img{
+
+		#obrazki{
+			position: relative;
 			width: 150px;
 			height: 150px;
 			margin: 10px auto;
 			display: block;
+			overflow: hidden;
 			border: 2px solid rgb(0, 160, 255);
+		}
+
+		#obrazki > img:nth-child(1){
+			position: relative;
+			margin: 0;
+			width: 150px;
+			height: 150px;
+			padding: 0;
+			bottom: 0;
+		}
+		#obrazki > img:nth-child(2){
+			position: relative;
+			margin: 0;
+			width: 150px;
+			height: 150px;
+			padding: 0;
+			bottom: 4px;
 		}
 		#licznik{
 			position: absolute;
@@ -209,6 +229,28 @@
 			border: 2px outset rgb(0, 160, 255);
 			color: aqua;
 		}
+		.slider1{
+			position: relative;
+			bottom: 0;
+			animation-name: slider1;
+			animation-duration: 0.35s;
+		}
+
+		.slider0{
+			position: relative;
+			bottom: -150px;
+			animation-name: slider0;
+			animation-duration: 0.35s;
+		}
+
+		@keyframes slider1{
+			from {bottom: 0}
+			to {bottom:150px}
+		}
+		@keyframes slider0{
+			from{bottom: 4px}
+			to {bottom: 154px}
+		}
 
 	</style>
     <script>
@@ -226,9 +268,9 @@
 		// wyswietlUkladanke() - wyswietlanie ukladanki na podstawie tablicy pozycji (tabpoz) oraz elementow z słownika
 		// konwersjaCzasu() - formatuje czas do czytelniejszej formy
 		// IntToImage(czasFormated) - przeksztalca stringa w obraz
-		// rekordy()
+		// rekordy() - sortuje tablice wynikow, filtruje po this.poziomTrudnosci
 		// rysujTabeleWynikow(tabRek) - rysuj tabele z wynikami na koniec
-
+		// cookieToArray() - pobiera cookiesy i zmienia na tablice
 
 		/* ===== WARTOSCI ===== */
 		// cyferki - pokazanie cyferek na elementach układanki (uproszczenie)
@@ -239,14 +281,15 @@
 		// tabPoz[] - zawiera aktualna pozycje kazdego diva (jesli wartosci sa kolejno rosnaco to wygrana)
 		// czasStop - czysci interval, zatrzymuje czas w timerze
 		// czasMieszania - czysci timeout, zapobiega powtarzaniu mieszania kiedy spamujemy zmiane trudnosci
-
+		// LicznikStart - posiada wartosc poczatkowa licznika by móc ją odejnować od obecnego czasu
+		// tabCzasu[] - posiada stopera w podanej formie [h, m, s, ms]
 
       function ready() {
         slide = {
 			run: function (){
 				this.createDom()
 				this.loadphoto()
-				this.losowanyObraz() // to do usuniecia a onclick ustawienie borderu na #game
+				// this.losowanyObraz() // to do usuniecia a onclick ustawienie borderu na #game
 				this.changePhoto()
 				// this.rekordy()
 			},
@@ -264,24 +307,11 @@
 			czasMieszania: null,
 
 
-			changePhoto: function(){
-				var ilObrazkow = 20
-				var obrazek = document.getElementsByTagName('header')[0].querySelector('img')
-				obrazek.addEventListener('click', () =>{
-					document.getElementById('game').style.border = 0
-					clearInterval(this.czasStop)
-					this.nrZdj ++
-					if (this.nrZdj > ilObrazkow) this.nrZdj = 1 
-					document.getElementsByTagName('header')[0].querySelector('img').src = `p${this.nrZdj}.jpg`
-					document.getElementById('game').innerHTML = ''
-					this.losowanyObraz()
-				})
-				document.getElementById('timer').innerHTML = this.IntToImage('00:00:00:000') 
-			},
-
-
 			createDom: function(){
 				el = document.createElement('header')
+				le = document.createElement('div')
+				le.id = 'obrazki'
+				el.appendChild(le)
 				document.body.appendChild(el)
 
 				tablicaElementow = ['buttony', 'timer', 'game']
@@ -349,10 +379,49 @@
 			},
 
 
-            loadphoto: function(){
+			loadphoto: function(){
                 obraz = document.createElement("img")
-                obraz.src = `p${this.nrZdj}.jpg`
-				document.getElementsByTagName('header')[0].appendChild(obraz)
+                obraz.src = `img/p${this.nrZdj}.jpg`
+				document.getElementById('obrazki').appendChild(obraz)
+                obraz = document.createElement("img")
+                obraz.src = `img/p${this.nrZdj+1}.jpg`
+				document.getElementById('obrazki').appendChild(obraz)
+			},
+
+
+			changePhoto: function(){
+				var ilObrazkow = 12
+				var obrazek = document.getElementById('obrazki').children[0]
+				obrazek.addEventListener('click', () =>{
+					obrazek = document.getElementById('obrazki').children[0]
+					obrazek2 = document.getElementById('obrazki').children[1]
+					document.getElementById('game').style.border = 0
+					clearInterval(this.czasStop)
+					clearTimeout(this.czasMieszania)
+					console.log(obrazek)
+					obrazek.classList.remove("slider0", "slider1")
+					obrazek2.classList.remove("slider0", "slider1")
+					obrazek.classList.add("slider1") //jakiegoś timeouta pasuje dodac
+					obrazek2.classList.add("slider0")
+
+					var timeout = () =>{
+						obrazek.classList.remove("slider0", "slider1")
+						obrazek2.classList.remove("slider0", "slider1")
+						this.nrZdj ++
+						if (this.nrZdj > ilObrazkow) this.nrZdj = 1
+						var secoundPic = this.nrZdj+1
+						if(secoundPic > ilObrazkow)	secoundPic = 1
+
+							
+						document.getElementById('obrazki').children[0].src = `img/p${this.nrZdj}.jpg`
+						document.getElementById('obrazki').children[1].src = `img/p${secoundPic}.jpg`
+						document.getElementById('game').innerHTML = ''
+						// this.losowanyObraz()
+					}
+					var czekamy = setTimeout(timeout, 350)
+					
+				})
+				document.getElementById('timer').innerHTML = this.IntToImage('00:00:00:000') 
 			},
 
 
@@ -435,7 +504,7 @@
 						if (i * j != (this.poziomTrudnosci - 1)**2) {
 							el.id = l
 							this.slownik[l] = el
-							el.style.backgroundImage = `url(p${this.nrZdj}.jpg)`;
+							el.style.backgroundImage = `url(img/p${this.nrZdj}.jpg)`;
 							el.style.backgroundSize = '600px 600px'
 							el.style.backgroundPosition = `-${600 / this.poziomTrudnosci * j}px -${600 / this.poziomTrudnosci * i}px`
 						} else {
@@ -668,7 +737,7 @@
 
 					el = document.createElement('img')
 					el.style.width = '600px'; el.style.height = '600px';
-					el.src = `p${this.nrZdj}.jpg`;
+					el.src = `img/p${this.nrZdj}.jpg`;
 					game.appendChild(el)
 				}
 			},
@@ -803,7 +872,6 @@
 				firstValueCookie = tabRek[i][0]
 				tabRek[i].shift()
 				firstValueCookie = firstValueCookie.split('=')
-				// tabRek[i].unshift(firstValueCookie[0], firstValueCookie[1])
 				tabRek[i].unshift(firstValueCookie[1])
 			}
 
