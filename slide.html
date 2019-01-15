@@ -32,7 +32,7 @@
 			border: 2px solid rgb(0, 160, 255);
 		}
 
-		#obrazki > img:nth-child(1){
+		#obrazki > img{
 			position: relative;
 			margin: 0;
 			width: 150px;
@@ -40,14 +40,7 @@
 			padding: 0;
 			bottom: 0;
 		}
-		#obrazki > img:nth-child(2){
-			position: relative;
-			margin: 0;
-			width: 150px;
-			height: 150px;
-			padding: 0;
-			bottom: 4px;
-		}
+		
 		#licznik{
 			position: absolute;
 			top: 45%;
@@ -271,6 +264,7 @@
 		// rekordy() - sortuje tablice wynikow, filtruje po this.poziomTrudnosci
 		// rysujTabeleWynikow(tabRek) - rysuj tabele z wynikami na koniec
 		// cookieToArray() - pobiera cookiesy i zmienia na tablice
+		// pomocButton() - tworzy button ktory po kliku dodaje cyferki do ukladanki
 
 		/* ===== WARTOSCI ===== */
 		// cyferki - pokazanie cyferek na elementach układanki (uproszczenie)
@@ -334,6 +328,11 @@
 						document.getElementById('game').style.border = '2px solid aqua'
 						this.poziomTrudnosci= tabId[i]
 						document.getElementById('game').innerHTML = ''
+						var existPomoc = document.getElementById('pomoc')
+						if (existPomoc != null)
+							existPomoc.parentNode.removeChild(existPomoc)
+						this.cyferki = false
+						
 						this.losowanyObraz()
 						this.wyswietlUkladanke()
 						this.mieszaj()
@@ -341,27 +340,19 @@
 				}
 
 
-				// tworzenie buttona 'Pomóc?'
-				btn = document.createElement('button')
-				btn.id = 'pomoc'
-				t = document.createTextNode('Pomóc?')
-				btn.appendChild(t)
-				document.getElementById('buttony').appendChild(btn)
-				btn.onclick = () => {
-						this.cyferki = !this.cyferki
-						for(i=0; i<this.poziomTrudnosci**2; i++)
-							document.getElementById('game').children[i].innerHTML = ''
-						this.wyswietlUkladanke()
-					}
-
 				// tworzenie inputa obok buttonow
 				var inp = document.createElement('input')
 				inp.type = 'number'; inp.value = 7
 				inp.max = 20; inp.min = 7;
 				inp.id = 'PozInput'
 				inp.onclick = () => {
+						document.getElementById('game').style.border = '2px solid aqua'
 						this.poziomTrudnosci= parseInt(document.getElementById('PozInput').value)
 						document.getElementById('game').innerHTML = ''
+						var existPomoc = document.getElementById('pomoc')
+						if (existPomoc != null)
+							existPomoc.parentNode.removeChild(existPomoc)
+						this.cyferki = false
 						this.losowanyObraz()
 						this.wyswietlUkladanke()
 						this.mieszaj()
@@ -371,11 +362,24 @@
 				
 				var licznik = document.createElement('div')
 				licznik.id = 'licznik'
-				//t = document.createTextNode('oblicznik')
-				//licznik.appendChild(t)
 				document.getElementsByTagName('header')[0].appendChild(licznik)	
 				document.getElementById('licznik').style.fontSize = window.innerHeight/50+2+"px";
 
+			},
+
+			pomocButton: function () {
+				// tworzenie buttona 'Pomóc?'
+				btn = document.createElement('button')
+				btn.id = 'pomoc'
+				t = document.createTextNode('Pomóc?')
+				btn.appendChild(t)
+				document.getElementById('buttony').appendChild(btn)
+				btn.onclick = () => {
+					this.cyferki = !this.cyferki
+					for (i = 0; i < this.poziomTrudnosci ** 2; i++)
+						document.getElementById('game').children[i].innerHTML = ''
+					this.wyswietlUkladanke()
+				}
 			},
 
 
@@ -401,7 +405,7 @@
 					console.log(obrazek)
 					obrazek.classList.remove("slider0", "slider1")
 					obrazek2.classList.remove("slider0", "slider1")
-					obrazek.classList.add("slider1") //jakiegoś timeouta pasuje dodac
+					obrazek.classList.add("slider1")
 					obrazek2.classList.add("slider0")
 
 					var timeout = () =>{
@@ -497,7 +501,7 @@
 					for (var j = 0; j < this.poziomTrudnosci; j++) {
 						var el = document.createElement('div')
 						el.style.width = String(600 / this.poziomTrudnosci) + 'px'
-						el.style.height = String(600 / this.poziomTrudnosci) + 'px' // line-height: 100px;
+						el.style.height = String(600 / this.poziomTrudnosci) + 'px'
 						el.style.lineHeight = String(600 / this.poziomTrudnosci) + 'px'
 						el.style.fontSize = 140/this.poziomTrudnosci+'px'
 
@@ -517,7 +521,6 @@
 					}
 				}
 
-				//console.log(this.slownik)
 				this.wyswietlUkladanke()
 			},
 
@@ -630,7 +633,6 @@
 										slide.tabPoz[i + 1][j] = 0
 										przeciwnyKier = 3
 									}
-									//console.log(kierunek); console.log(this.tabPoz);
 								}
 							}
 						}
@@ -642,6 +644,7 @@
 						clearTimeout(slide.czasMieszania)
 						slide.czasMieszania = setTimeout(interwal, 8)
 						}else{
+								slide.pomocButton()
 								slide.timer('start')
 								slide.czasStop = setInterval("slide.timer('running')", 7)
 						}
@@ -708,12 +711,7 @@
 					btn.innerHTML = 'dodaj'
 					btn.onclick = () => {
 						var nick = document.getElementById('inputBox').value
-						console.log(`Nick: ${nick} +++ Czas: ${formatedRekord} +++ nr Ruchu: ${this.nrRuchu}`) //dodanie tego jako cookies
-						// po kliknięciu przycisku 'dodaj' zostaną dodane cookies, usunięcie całego kontekstu strony, pokazanie tabeli z wynikami
-						// porównanie wyników rawRekord z pozostałymi, będą one zapisywane w raw a podczas wyświetlania formatowane funkcją 'konwersjaCzasu'
-						// dodanie buttonow jednego prowadzacego do rekordow, a drugigo wracajacego do gry(wracanie do zapisu gry czy zaczynamy od nowa???)
-						// delete cookie: document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-						
+						console.log(`Nick: ${nick} +++ Czas: ${formatedRekord} +++ nr Ruchu: ${this.nrRuchu}`)
 
 						var now = new Date
 						var time = now.getTime()
@@ -723,8 +721,7 @@
 						var rezultat = [nick, rawRekord, slide.nrRuchu, `${slide.poziomTrudnosci}`]
 						document.cookie = `${time}=${rezultat}; expires=${expireTime};`  //nick+"="+rezultat+"; expires"+expireTime+";"  //expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;
 						console.log(document.cookie)
-						// a to string wiec będziemy na nim pracować, join, split itd
-						// document.cookie = "temp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+						// document.cookie = "temp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // usuwanie cookie
 						this.rekordy()
 						
 
@@ -817,47 +814,19 @@
 					bt.innerHTML = `${tabInner[i]} x ${tabInner[i]}` 
 					console.log(tabKonkrPoz)
 
-					// dziala function asd(){
-					// dziala 	console.log(tabKonkrPoz)
-					// dziala }
-					// dziala bt.onclick = asd
 					bt.addEventListener('click', function () {
-						console.log(this.id)
+						console.log(this)
+						this.style.border = '2px outset rgb(255, 0, 162)'
 						console.log(tabKonkrPoz)
 						slide.poziomTrudnosci = this.id[2]
 						document.body.innerHTML = ''
 						slide.rekordy()
 					})
-					
-					//bt.onclick = () => {
-					//	console.log(this)
-					//	console.log(i)
-					//	console.log(tabInner[i])
-					//	this.poziomTrudnosci = tabInner[i]
-					//	console.log(tabKonkrPoz)
-					//	// document.body.innerHTML = ''
-					//	// this.rysujTabeleWynikow(tabKonkrPoz)
-					//}
-
-
-					//bt.onclick = () => {
-					//	asd()
-					//	debugger
-					//	console.log(tabKonkrPoz)
-					//	document.body.innerHTML = '' //tr th td
-					//	this.rysujTabeleWynikow(tabKonkrPoz)
-					//	var tabKonkrPoz = []
-					//	for (i = 0; i < tabKonkrPoz.length; i++) {
-					//		for (j = 0; j < tabKonkrPoz[i].length; j++) { //ten for jest zle
-					//			if (tabKonkrPoz[i][j] == tabInner[i]) {
-					//				tabKonkrPoz.push(tabKonkrPoz[i])
-					//			}
-					//		}
-					//	}
-					//}
 					d.appendChild(bt)
 				}
 				document.body.appendChild(d)
+				if(this.poziomTrudnosci <= 6)
+					document.getElementById('bb'+String(this.poziomTrudnosci)).style.border = '2px outset rgb(255, 0, 162)'
 			},
 
 			cookieToArray: function () {
